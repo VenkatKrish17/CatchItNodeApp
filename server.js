@@ -11,12 +11,12 @@ app.use(bodyParser())
 app.use(cors())
 app.use(bodyParser.json());
 
-
+var port = process.env.PORT || 3000;
 MongoClient.connect('mongodb://admin:admin%408@ds143604.mlab.com:43604/catchit', (err, client) => {
   if (err) return console.log(err)
   db = client.db('catchit') // whatever your database name is
-  app.listen(3000, () => {
-    console.log('listening on 3000')
+  app.listen(port, () => {
+    console.log('listening on'+port)
   })
 })
 
