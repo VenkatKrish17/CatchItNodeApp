@@ -152,36 +152,84 @@ app.post('/game', function(req, res) {
    })
 })
 
-app.post('/user', (req, res) => {
+/*
+create new user
+*/
+app.post("/user",(req,res)=>{
+    var date=new Date()
+    console.log(req)
+    var info=req.body
+    console.log(info)
+    info['last_login']=date
+    db.collections.findOne({'userid':info.userid},(err,result)=>{
+        if(err){
+            return res.json({"status":false,"message":err.message})
+        }
+        else{
+           if(result!=undefined){
+            return res.json({"status":false,"message":"User Id Exists! "})
+           }
+           else{
+            db.collection("users").save(info,(err,result)=>{
+                if(err){
+                    return res.json({"status":false,"message":err.message})
+                }
+                else{
+                    return res.json({"status":false,"message":err.message})
+                }
+            })
+           }
+        }
+    })
+
+})
+
+/*
+login 
+*/
+app.post('/login', (req, res) => {
     var date=new Date()
     console.log(req)
     var info=req.body
     console.log(info)
     info['last_login']=date
 
-
-    db.collection('user').update({'userid':info.userid},info,{upsert: true}, (err, result) => {
-        if(err) {
-            console.log(err)
+    db.collection("users").findOne(info,(err,result)=>{
+        if(err){
             return res.json({"status":false,"message":err.message})
-       }
-       else{
+        }
+        if(result!=undefined){
+            db.collection('game').find({'host_id':info.userid}).toArray((err,result)=>{
+                if(err) {
+                     console.log(err)
+                     return res.json({"status":true,"userid":info.userid,"games":result})
+                }
+                else{
+                    if(result==undefined || result.length==0){
+                        return res.json({"status":true,"userid":info.userid,"games":[]})
+                    }
+                    else {
+                        return res.json({"status":true,"userid":info.userid,"games":result})
+                    }
+                    
+                }
+            })
+            // return res.json({"status":false,"message":"Participant name already exist"})
+        }
+        else{
+            return res.json({"status":false,"message":"Invalid Credentials"})
+        }
+
+    })
+
+    // db.collection('user').update({'userid':info.userid},info,{upsert: true}, (err, result) => {
+    //     if(err) {
+    //         console.log(err)
+    //         return res.json({"status":false,"message":err.message})
+    //    }
+    //    else{
         
-        db.collection('games').find({'host_id':info.userid}).toArray((err,result)=>{
-            if(err) {
-                 console.log(err)
-                 return res.json({"status":false,"message":err.message})
-            }
-            else{
-                if(result==undefined || result.length==0){
-                    return res.json({"status":true,"userid":info.userid,"games":[]})
-                }
-                else {
-                    return res.json({"status":true,"userid":info.userid,"games":result})
-                }
-                
-            }
-        })
-    }
-      })
+        
+    // }
+    //   })
 })
