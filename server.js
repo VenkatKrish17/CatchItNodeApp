@@ -161,7 +161,7 @@ app.post("/user",(req,res)=>{
     var info=req.body
     console.log(info)
     info['last_login']=date
-    db.collections.findOne({'userid':info.userid},(err,result)=>{
+    db.collection("users").findOne({'userid':info.userid},(err,result)=>{
         if(err){
             return res.json({"status":false,"message":err.message})
         }
@@ -175,7 +175,7 @@ app.post("/user",(req,res)=>{
                     return res.json({"status":false,"message":err.message})
                 }
                 else{
-                    return res.json({"status":false,"message":err.message})
+                    return res.json({"status":true,"message":"Welcome to Catch It!"})
                 }
             })
            }
@@ -192,32 +192,35 @@ app.post('/login', (req, res) => {
     console.log(req)
     var info=req.body
     console.log(info)
-    info['last_login']=date
-
     db.collection("users").findOne(info,(err,result)=>{
         if(err){
             return res.json({"status":false,"message":err.message})
         }
-        if(result!=undefined){
-            db.collection('game').find({'host_id':info.userid}).toArray((err,result)=>{
-                if(err) {
-                     console.log(err)
-                     return res.json({"status":true,"userid":info.userid,"games":result})
-                }
-                else{
-                    if(result==undefined || result.length==0){
-                        return res.json({"status":true,"userid":info.userid,"games":[]})
-                    }
-                    else {
-                        return res.json({"status":true,"userid":info.userid,"games":result})
-                    }
-                    
-                }
-            })
-            // return res.json({"status":false,"message":"Participant name already exist"})
-        }
+        
         else{
-            return res.json({"status":false,"message":"Invalid Credentials"})
+            console.log(result)
+            if(result!=undefined){
+                db.collection('game').find({'host_id':info.userid}).toArray((err,result)=>{
+                    if(err) {
+                         console.log(err)
+                         return res.json({"status":true,"userid":info.userid,"games":result})
+                    }
+                    else{
+                        if(result==undefined || result.length==0){
+                            return res.json({"status":true,"userid":info.userid,"games":[]})
+                        }
+                        else {
+                            return res.json({"status":true,"userid":info.userid,"games":result})
+                        }
+                        
+                    }
+                })
+                // return res.json({"status":false,"message":"Participant name already exist"})
+            }
+            else{
+                return res.json({"status":false,"message":"Invalid Credentials"})
+            }
+            
         }
 
     })
